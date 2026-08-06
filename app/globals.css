@@ -885,3 +885,146 @@ select { cursor: pointer; }
   .page-head h1 { font-size: 21px; }
   .status-row { grid-template-columns: 116px minmax(0, 1fr) 30px; }
 }
+
+/* ------------------------------------------------- v2: gói thầu & đợt nhập */
+
+.mono { font-family: var(--mono); font-size: 11px; }
+.text-danger { color: var(--danger) !important; font-weight: 600; }
+.icon-button.accent { color: var(--brand); }
+.icon-button.accent:hover { background: var(--brand-wash); color: var(--brand-ink); }
+
+.attention-item.overdue { background: linear-gradient(90deg, var(--danger-wash), transparent 55%); }
+
+.form-hint-block {
+  grid-column: 1 / -1;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+/* --- bảng tóm tắt trong panel đợt nhập --- */
+.receipt-summary {
+  display: grid;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-sunken);
+  margin-bottom: 16px;
+}
+.receipt-figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 12px; margin: 0; }
+.receipt-figures div { display: flex; flex-direction: column; gap: 3px; }
+.receipt-figures dt { font-size: 11.5px; color: var(--ink-3); }
+.receipt-figures dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.receipt-figures dd.ok { color: var(--ok); }
+.receipt-figures dd.warn { color: var(--warn); }
+
+.receipt-form {
+  display: grid;
+  grid-template-columns: 130px 150px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+.receipt-submit { height: 36px; }
+
+.receipt-tip { margin: 10px 0 4px; }
+.receipt-done {
+  padding: 11px 13px;
+  border-radius: var(--radius-sm);
+  background: var(--ok-wash);
+  color: var(--ok);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.receipt-list { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+.receipt-timeline { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.receipt-timeline li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  transition: background .12s ease;
+}
+.receipt-timeline li:hover { background: var(--surface-sunken); }
+
+.receipt-qty {
+  min-width: 52px;
+  padding: 4px 9px;
+  border-radius: 7px;
+  background: var(--ok-wash);
+  color: var(--ok);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}
+.receipt-qty.zero { background: var(--muted-wash); color: var(--ink-3); }
+.receipt-body { flex: 1; min-width: 0; }
+.receipt-body strong { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* --- xem trước khi nhập Excel --- */
+.import-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-sunken);
+}
+.preview-figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 10px; }
+.preview-figures div { display: flex; flex-direction: column; gap: 2px; }
+.preview-figures dt { font-size: 11px; color: var(--ink-3); }
+.preview-figures dd { margin: 0; font-family: var(--mono); font-size: 17px; font-weight: 600; }
+.preview-figures dd.ok { color: var(--ok); }
+.preview-figures dd.warn { color: var(--warn); }
+
+.mode-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mode-choice label {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color .14s ease, background .14s ease;
+}
+.mode-choice label:hover { border-color: var(--ink-3); }
+.mode-choice label.active { border-color: var(--brand); background: var(--brand-wash); }
+.mode-choice input { margin-top: 3px; accent-color: var(--brand); }
+.mode-choice strong { display: block; font-size: 12.5px; }
+.mode-choice small { color: var(--ink-3); font-size: 11.5px; }
+
+.dup-list {
+  list-style: none;
+  margin: 0;
+  padding: 10px 12px;
+  max-height: 132px;
+  overflow-y: auto;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.dup-list li + li { margin-top: 4px; }
+.dup-list em { color: var(--ink-3); font-style: normal; font-family: var(--mono); font-size: 11px; }
+
+@media (max-width: 720px) {
+  .receipt-form { grid-template-columns: 1fr 1fr; }
+  .receipt-submit { grid-column: 1 / -1; }
+  .mode-choice { grid-template-columns: 1fr; }
+}

@@ -1,29 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { qs, useDebounced, useResource } from "@/lib/client";
 import { EmptyState, Pagination, ProgressBar, StatusBadge, TableSkeleton } from "./ui";
 
 const STATUSES = ["Hoàn thành", "Đang nhập", "Chưa nhập", "Chưa cập nhật"];
 
-export default function InventoryView({ projects, owners, pageSize, refreshKey, onEditItem, onDeleteItem, onAddItem, onImportExcel }) {
+export default function InventoryView({
+  packages, owners, pageSize, refreshKey, initialPackageId,
+  onEditItem, onDeleteItem, onAddItem, onImportExcel, onOpenReceipts,
+}) {
   const [search, setSearch] = useState("");
-  const [projectId, setProjectId] = useState("");
+  const [packageId, setPackageId] = useState(initialPackageId ?? "");
   const [owner, setOwner] = useState("");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebounced(search);
 
-  const filters = { q: debouncedSearch, projectId, owner, status };
+  // Khi mở từ màn Gói thầu, lọc sẵn theo gói đó.
+  useEffect(() => {
+    if (initialPackageId) { setPackageId(initialPackageId); setPage(1); }
+  }, [initialPackageId]);
+
+  const filters = { q: debouncedSearch, packageId, owner, status };
   const hasFilters = Object.values(filters).some(Boolean);
-  const { data, loading } = useResource(
-    `/items${qs({ ...filters, page, pageSize, _: refreshKey })}`
-  );
+  const { data, loading } = useResource(`/items${qs({ ...filters, page, pageSize, _: refreshKey })}`);
   const items = data?.data ?? [];
 
   const update = (setter) => (event) => { setter(event.target.value); setPage(1); };
   const clearFilters = () => {
-    setSearch(""); setProjectId(""); setOwner(""); setStatus(""); setPage(1);
+    setSearch(""); setPackageId(""); setOwner(""); setStatus(""); setPage(1);
   };
 
   return (
@@ -35,14 +41,10 @@ export default function InventoryView({ projects, owners, pageSize, refreshKey, 
         </div>
         <div className="toolbar">
           <button className="button button-quiet" onClick={onImportExcel}>⇧ Nhập Excel</button>
-          <a
-            className="button button-quiet"
-            href={`/api/export${qs(filters)}`}
-            download
-          >
-            ⇩ Xuất CSV
-          </a>
-          <button className="button button-primary" onClick={onAddItem}>+ Thêm hàng hóa</button>
+          <a className="button button-quiet" href={`/api/export${qs(filters)}`} download>⇩ Xuất CSV</a>
+          <button className="button button-primary" onClick={onAddItem} disabled={packages.length === 0}>
+            + Thêm hàng hóa
+          </button>
         </div>
       </div>
 
@@ -53,13 +55,17 @@ export default function InventoryView({ projects, owners, pageSize, refreshKey, 
             type="search"
             value={search}
             onChange={update(setSearch)}
-            placeholder="Tìm hàng hóa, model, hãng sản xuất…"
+            placeholder="Tìm hàng hóa, model, hãng SX, mã TBMT…"
             aria-label="Tìm hàng hóa"
           />
         </label>
-        <select value={projectId} onChange={update(setProjectId)} aria-label="Lọc dự án">
-          <option value="">Tất cả dự án</option>
-          {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+        <select value={packageId} onChange={update(setPackageId)} aria-label="Lọc gói thầu">
+          <option value="">Tất cả gói thầu</option>
+          {packages.map((p) => (
+            <option key={p.id} value={p.id}>
+              {[p.code, p.name].filter(Boolean).join(" · ")}
+            </option>
+          ))}
         </select>
         <select value={owner} onChange={update(setOwner)} aria-label="Lọc đơn vị">
           <option value="">Tất cả đơn vị</option>
@@ -69,9 +75,7 @@ export default function InventoryView({ projects, owners, pageSize, refreshKey, 
           <option value="">Tất cả trạng thái</option>
           {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
-        <button className="button button-quiet" onClick={clearFilters} disabled={!hasFilters}>
-          Xóa bộ lọc
-        </button>
+        <button className="button button-quiet" onClick={clearFilters} disabled={!hasFilters}>Xóa bộ lọc</button>
       </div>
 
       <div className="table-wrap">
@@ -79,12 +83,12 @@ export default function InventoryView({ projects, owners, pageSize, refreshKey, 
           <thead>
             <tr>
               <th>Hàng hóa</th>
-              <th>Dự án</th>
+              <th>Gói thầu</th>
               <th className="num">KH</th>
               <th className="num">Đã nhập</th>
+              <th className="num">Còn lại</th>
               <th className="progress-col">Tiến độ</th>
               <th>Trạng thái</th>
-              <th>Ngày nhập</th>
               <th aria-label="Thao tác" />
             </tr>
           </thead>
@@ -116,15 +120,26 @@ export default function InventoryView({ projects, owners, pageSize, refreshKey, 
                       </span>
                     </td>
                     <td>
-                      {item.projectName}
-                      <span className="cell-sub">{item.owner || "—"}</span>
+                      {item.packageName || "(chưa đặt tên)"}
+                      <span className="cell-sub mono">{item.packageCode || item.projectName}</span>
                     </td>
                     <td className="num">{item.planQty} <small>{item.unit}</small></td>
-                    <td className="num">{item.receivedQty ?? "—"}</td>
+                    <td className="num">
+                      {item.receivedQty}
+                      {item.receiptCount > 0 && <span className="cell-sub">{item.receiptCount} đợt</span>}
+                    </td>
+                    <td className="num">{item.remainingQty}</td>
                     <td className="progress-col"><ProgressBar value={item.completion} /></td>
                     <td><StatusBadge status={item.status} /></td>
-                    <td>{item.receivedDate || "—"}</td>
                     <td className="row-actions">
+                      <button
+                        className="icon-button accent"
+                        onClick={() => onOpenReceipts(item)}
+                        aria-label={`Ghi nhận đợt nhập cho ${item.name}`}
+                        title="Đợt nhập hàng"
+                      >
+                        ⇧
+                      </button>
                       <button className="icon-button" onClick={() => onEditItem(item)} aria-label={`Sửa ${item.name}`}>✎</button>
                       <button className="icon-button danger" onClick={() => onDeleteItem(item)} aria-label={`Xóa ${item.name}`}>🗑</button>
                     </td>

@@ -4,13 +4,12 @@ import { useState } from "react";
 import { api, RequestError } from "@/lib/client";
 import { Field, Modal } from "./ui";
 
-export default function ProjectForm({ project, owners, onClose, onSaved }) {
+export default function ProjectForm({ project, onClose, onSaved }) {
   const isEdit = Boolean(project);
   const [values, setValues] = useState({
     name: project?.name ?? "",
-    owner: project?.owner ?? "",
-    bid: project?.bid ?? "",
     location: project?.location ?? "",
+    note: project?.note ?? "",
   });
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState(null);
@@ -41,7 +40,7 @@ export default function ProjectForm({ project, owners, onClose, onSaved }) {
   return (
     <Modal
       title={isEdit ? "Cập nhật dự án" : "Thêm dự án"}
-      subtitle={isEdit ? project.name : "Tạo mới một dự án nhập hàng"}
+      subtitle={isEdit ? project.name : "Dự án là nơi nhóm các gói thầu của cùng một chủ đầu tư"}
       onClose={onClose}
       footer={
         <>
@@ -54,24 +53,14 @@ export default function ProjectForm({ project, owners, onClose, onSaved }) {
     >
       <form id="project-form" className="form-grid" onSubmit={submit} noValidate>
         {formError && <p className="form-alert">{formError}</p>}
-
         <Field label="Tên dự án" error={errors.name} wide>
           <input value={values.name} onChange={set("name")} placeholder="Bệnh viện Đa khoa …" required />
         </Field>
-
-        <Field label="Đơn vị phụ trách" error={errors.owner}>
-          <input value={values.owner} onChange={set("owner")} list="owner-options" placeholder="HPT" />
-          <datalist id="owner-options">
-            {owners.map((o) => <option key={o} value={o} />)}
-          </datalist>
-        </Field>
-
-        <Field label="Mã gói thầu" error={errors.bid}>
-          <input value={values.bid} onChange={set("bid")} placeholder="IB2600343748" />
-        </Field>
-
         <Field label="Địa điểm" error={errors.location} wide>
           <input value={values.location} onChange={set("location")} placeholder="Hà Nội" />
+        </Field>
+        <Field label="Ghi chú" error={errors.note} wide>
+          <textarea rows={2} value={values.note} onChange={set("note")} placeholder="Thông tin thêm về dự án…" />
         </Field>
       </form>
     </Modal>

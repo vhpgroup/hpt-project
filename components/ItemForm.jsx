@@ -4,29 +4,18 @@ import { useState } from "react";
 import { api, RequestError } from "@/lib/client";
 import { Field, Modal } from "./ui";
 
-const blank = {
-  projectId: "", orderNo: "", name: "", unit: "", planQty: "",
-  receivedQty: "", receivedDate: "", model: "", maker: "", note: "",
-};
-
-export default function ItemForm({ item, projects, units, onClose, onSaved }) {
+export default function ItemForm({ item, packages, units, defaultPackageId, onClose, onSaved }) {
   const isEdit = Boolean(item);
-  const [values, setValues] = useState(() =>
-    item
-      ? {
-          projectId: item.projectId,
-          orderNo: item.orderNo ?? "",
-          name: item.name ?? "",
-          unit: item.unit ?? "",
-          planQty: String(item.planQty ?? ""),
-          receivedQty: item.receivedQty === null ? "" : String(item.receivedQty),
-          receivedDate: item.receivedDate ?? "",
-          model: item.model ?? "",
-          maker: item.maker ?? "",
-          note: item.note ?? "",
-        }
-      : { ...blank, projectId: projects[0]?.id ?? "" }
-  );
+  const [values, setValues] = useState({
+    packageId: item?.packageId ?? defaultPackageId ?? packages[0]?.id ?? "",
+    orderNo: item?.orderNo ?? "",
+    name: item?.name ?? "",
+    unit: item?.unit ?? "",
+    planQty: item ? String(item.planQty) : "",
+    model: item?.model ?? "",
+    maker: item?.maker ?? "",
+    note: item?.note ?? "",
+  });
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -42,12 +31,7 @@ export default function ItemForm({ item, projects, units, onClose, onSaved }) {
     setBusy(true);
     setFormError(null);
     try {
-      const payload = {
-        ...values,
-        planQty: values.planQty === "" ? 0 : Number(values.planQty),
-        receivedQty: values.receivedQty === "" ? null : Number(values.receivedQty),
-        receivedDate: values.receivedDate || null,
-      };
+      const payload = { ...values, planQty: values.planQty === "" ? 0 : Number(values.planQty) };
       const saved = isEdit
         ? await api(`/items/${item.id}`, { method: "PATCH", body: payload })
         : await api("/items", { method: "POST", body: payload });
@@ -63,7 +47,7 @@ export default function ItemForm({ item, projects, units, onClose, onSaved }) {
     <Modal
       wide
       title={isEdit ? "Cập nhật hàng hóa" : "Thêm hàng hóa"}
-      subtitle={isEdit ? item.name : "Khai báo một dòng hàng thuộc dự án"}
+      subtitle={isEdit ? item.name : "Khai báo một dòng hàng thuộc gói thầu"}
       onClose={onClose}
       footer={
         <>
@@ -77,17 +61,19 @@ export default function ItemForm({ item, projects, units, onClose, onSaved }) {
       <form id="item-form" className="form-grid" onSubmit={submit} noValidate>
         {formError && <p className="form-alert">{formError}</p>}
 
-        <Field label="Dự án" error={errors.projectId} wide>
-          <select value={values.projectId} onChange={set("projectId")} required>
-            <option value="">— Chọn dự án —</option>
-            {projects.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
+        <Field label="Gói thầu" error={errors.packageId} wide>
+          <select value={values.packageId} onChange={set("packageId")} required>
+            <option value="">— Chọn gói thầu —</option>
+            {packages.map((p) => (
+              <option key={p.id} value={p.id}>
+                {[p.code, p.name].filter(Boolean).join(" · ")} — {p.projectName}
+              </option>
             ))}
           </select>
         </Field>
 
         <Field label="Tên hàng hóa" error={errors.name} wide>
-          <input value={values.name} onChange={set("name")} placeholder="Ví dụ: Máy tính để bàn Dell" required />
+          <input value={values.name} onChange={set("name")} placeholder="Máy tính để bàn Dell" required />
         </Field>
 
         <Field label="STT trong gói" error={errors.orderNo}>
@@ -101,33 +87,31 @@ export default function ItemForm({ item, projects, units, onClose, onSaved }) {
           </datalist>
         </Field>
 
-        <Field label="Số lượng kế hoạch" error={errors.planQty}>
-          <input type="number" min="0" value={values.planQty} onChange={set("planQty")} required />
-        </Field>
-
         <Field
-          label="Số lượng đã nhập"
-          error={errors.receivedQty}
-          hint="Để trống nếu chưa cập nhật"
+          label="Số lượng kế hoạch"
+          error={errors.planQty}
+          hint={isEdit ? `Đã nhập ${item.receivedQty} — không thể hạ thấp hơn` : undefined}
         >
-          <input type="number" min="0" value={values.receivedQty} onChange={set("receivedQty")} />
-        </Field>
-
-        <Field label="Ngày nhập gần nhất" error={errors.receivedDate}>
-          <input type="date" value={values.receivedDate} onChange={set("receivedDate")} />
+          <input type="number" min="0" value={values.planQty} onChange={set("planQty")} required />
         </Field>
 
         <Field label="Hãng sản xuất" error={errors.maker}>
           <input value={values.maker} onChange={set("maker")} placeholder="Dell" />
         </Field>
 
-        <Field label="Model / Mã hiệu" error={errors.model} wide>
+        <Field label="Model / Ký mã hiệu" error={errors.model} wide>
           <input value={values.model} onChange={set("model")} placeholder="OptiPlex 7020 SFF" />
         </Field>
 
         <Field label="Ghi chú" error={errors.note} wide>
-          <textarea rows={2} value={values.note} onChange={set("note")} placeholder="Thông tin thêm về lô hàng…" />
+          <textarea rows={2} value={values.note} onChange={set("note")} />
         </Field>
+
+        {isEdit && (
+          <p className="form-hint-block">
+            Số lượng đã nhập được quản lý qua <strong>các đợt nhập</strong> — mở bảng đợt nhập của dòng hàng để ghi nhận.
+          </p>
+        )}
       </form>
     </Modal>
   );
