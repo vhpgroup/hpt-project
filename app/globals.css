@@ -394,8 +394,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .search-box.wide { flex: 1 1 260px; }
 .search-box:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-wash); }
-.search-box input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; padding: 8px 0; font-size: 13px; }
-
 select, input:not([type="checkbox"]), textarea {
   padding: 8px 10px;
   background: var(--surface);
@@ -406,6 +404,18 @@ select, input:not([type="checkbox"]), textarea {
   transition: border-color .12s ease, box-shadow .12s ease;
 }
 select:focus, input:focus, textarea:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-wash); }
+.search-box input:not([type="checkbox"]) {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 0;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 13px;
+}
+.search-box input:not([type="checkbox"]):focus { border: 0; box-shadow: none; }
 textarea { resize: vertical; font-family: inherit; }
 select { cursor: pointer; }
 
@@ -600,6 +610,28 @@ select { cursor: pointer; }
   font-size: 12.5px;
   font-weight: 500;
 }
+
+/* ----------------------------------------------------------- Excel import */
+
+.excel-import-form { display: flex; flex-direction: column; gap: 14px; }
+.import-help { display: flex; gap: 11px; padding: 12px; border-radius: var(--radius-sm); background: var(--brand-wash); color: var(--brand-ink); }
+.import-help-icon { width: 30px; height: 30px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 8px; background: var(--brand); color: #fff; font-weight: 800; }
+.import-help strong { display: block; font-size: 12.5px; }
+.import-help p { margin-top: 3px; color: var(--ink-2); font-size: 12px; line-height: 1.45; }
+.template-link { align-self: flex-start; color: var(--brand); font-size: 12.5px; font-weight: 600; text-decoration: none; }
+.template-link:hover { text-decoration: underline; }
+.upload-zone { position: relative; min-height: 122px; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 18px; border: 1.5px dashed var(--border-strong); border-radius: var(--radius); background: var(--surface-sunken); color: var(--ink-2); text-align: center; cursor: pointer; transition: .15s ease; }
+.upload-zone:hover, .upload-zone:focus-within { border-color: var(--brand); background: var(--brand-wash); }
+.upload-zone.has-file { border-style: solid; border-color: var(--brand); }
+.upload-zone input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.upload-zone input:disabled { cursor: wait; }
+.upload-zone > span:last-child { display: grid; gap: 3px; }
+.upload-zone strong { font-size: 13px; }
+.upload-zone small { color: var(--ink-3); font-size: 11.5px; }
+.upload-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); color: var(--brand); font-size: 18px; font-weight: 700; }
+.import-error { padding: 11px 12px; border: 1px solid var(--danger); border-radius: var(--radius-sm); background: var(--danger-wash); color: var(--danger); font-size: 12px; }
+.import-error ul { margin: 7px 0 0; padding-left: 18px; }
+.import-error li + li { margin-top: 3px; }
 
 /* ---------------------------------------------------------------- settings */
 

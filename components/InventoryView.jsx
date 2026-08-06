@@ -6,7 +6,7 @@ import { EmptyState, Pagination, ProgressBar, StatusBadge, TableSkeleton } from 
 
 const STATUSES = ["Hoàn thành", "Đang nhập", "Chưa nhập", "Chưa cập nhật"];
 
-export default function InventoryView({ projects, owners, pageSize, refreshKey, onEditItem, onDeleteItem, onAddItem }) {
+export default function InventoryView({ projects, owners, pageSize, refreshKey, onEditItem, onDeleteItem, onAddItem, onImportExcel }) {
   const [search, setSearch] = useState("");
   const [projectId, setProjectId] = useState("");
   const [owner, setOwner] = useState("");
@@ -34,6 +34,7 @@ export default function InventoryView({ projects, owners, pageSize, refreshKey, 
           <h3>Toàn bộ dòng hàng {data?.meta ? `(${data.meta.total})` : ""}</h3>
         </div>
         <div className="toolbar">
+          <button className="button button-quiet" onClick={onImportExcel}>⇧ Nhập Excel</button>
           <a
             className="button button-quiet"
             href={`/api/export${qs(filters)}`}

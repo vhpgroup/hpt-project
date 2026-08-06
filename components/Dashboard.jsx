@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { api, useResource } from "@/lib/client";
+import ImportExcelDialog from "./ImportExcelDialog";
 import InventoryView from "./InventoryView";
 import ItemForm from "./ItemForm";
 import OverviewView from "./OverviewView";
@@ -19,6 +20,7 @@ export default function Dashboard() {
   const [view, setView] = useState("overview");
   const [toast, setToast] = useState(null);
   const [itemForm, setItemForm] = useState(null);       // { item? } | null
+  const [importExcel, setImportExcel] = useState(false);
   const [projectForm, setProjectForm] = useState(null); // { project? } | null
   const [confirm, setConfirm] = useState(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
@@ -108,19 +110,6 @@ export default function Dashboard() {
             <h1>{active.title}</h1>
             <p>{active.description}</p>
           </div>
-          {view !== "settings" && (
-            <div className="page-actions">
-              <a className="button button-quiet" href="/api/export" download>⇩ Xuất CSV</a>
-              <button
-                className="button button-primary"
-                onClick={() => setItemForm({})}
-                disabled={projects.length === 0}
-                title={projects.length === 0 ? "Cần tạo dự án trước" : undefined}
-              >
-                + Thêm hàng hóa
-              </button>
-            </div>
-          )}
         </header>
 
         {loadFailed && (
@@ -154,6 +143,7 @@ export default function Dashboard() {
             owners={owners}
             pageSize={settings.data?.pageSize ?? 10}
             refreshKey={refreshKey}
+            onImportExcel={() => setImportExcel(true)}
             onAddItem={() => setItemForm({})}
             onEditItem={(item) => setItemForm({ item })}
             onDeleteItem={(item) =>
@@ -185,6 +175,21 @@ export default function Dashboard() {
           onSaved={(_saved, isEdit) => {
             setItemForm(null);
             notify({ message: isEdit ? "Đã cập nhật hàng hóa." : "Đã thêm hàng hóa.", tone: "ok" });
+            refreshAll();
+          }}
+        />
+      )}
+
+      {importExcel && (
+        <ImportExcelDialog
+          onClose={() => setImportExcel(false)}
+          onImported={(result) => {
+            setImportExcel(false);
+            notify({
+              message: `Đã nhập ${result.imported} dòng hàng hóa${result.projectsCreated ? ` và tạo ${result.projectsCreated} dự án mới` : ""}.`,
+              tone: "ok",
+            });
+            settings.reload();
             refreshAll();
           }}
         />
