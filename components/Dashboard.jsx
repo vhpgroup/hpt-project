@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { api, useResource } from "@/lib/client";
+import AuditView from "./AuditView";
 import ImportExcelDialog from "./ImportExcelDialog";
 import InventoryView from "./InventoryView";
 import ItemForm from "./ItemForm";
@@ -17,6 +18,7 @@ const VIEWS = [
   { id: "overview",  group: "Quản lý",  icon: "⌂", label: "Tổng quan",     hint: "Tình hình nhập hàng",  title: "Tổng quan nhập hàng", description: "Theo dõi tiến độ, gói thầu sắp đến hạn và những điểm nghẽn cần xử lý." },
   { id: "packages",  group: "Quản lý",  icon: "◫", label: "Gói thầu",      hint: "Theo mã TBMT",         title: "Quản lý gói thầu",    description: "Mỗi dự án có thể gồm nhiều gói thầu, theo dõi riêng hạn giao và tiến độ." },
   { id: "inventory", group: "Quản lý",  icon: "▦", label: "Danh mục hàng", hint: "Hàng hóa & đợt nhập",  title: "Danh mục hàng hóa",   description: "Tra cứu, lọc và ghi nhận từng đợt hàng về theo dòng hàng." },
+  { id: "audit",     group: "Hệ thống", icon: "☰", label: "Nhật ký",       hint: "Lịch sử thay đổi",     title: "Nhật ký thay đổi",    description: "Mọi thao tác thêm, sửa, xóa đều được ghi lại kèm người thực hiện và thời điểm." },
   { id: "settings",  group: "Hệ thống", icon: "⚙", label: "Cài đặt",       hint: "Danh mục dùng chung",  title: "Cài đặt hệ thống",    description: "Cấu hình tên hệ thống và các danh mục dùng chung." },
 ];
 
@@ -186,6 +188,10 @@ export default function Dashboard() {
               })
             }
           />
+        )}
+
+        {view === "audit" && (
+          <AuditView pageSize={settings.data?.pageSize ?? 20} refreshKey={refreshKey} />
         )}
 
         {view === "settings" && settings.data && (

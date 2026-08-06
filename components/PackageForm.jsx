@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { api, RequestError } from "@/lib/client";
-import { Field, Modal } from "./ui";
+import { Field, Modal, MoneyInput } from "./ui";
 
 export default function PackageForm({ pkg, projects, owners, defaultProjectId, onClose, onSaved }) {
   const isEdit = Boolean(pkg);
@@ -13,6 +13,7 @@ export default function PackageForm({ pkg, projects, owners, defaultProjectId, o
     owner: pkg?.owner ?? "",
     location: pkg?.location ?? "",
     deadline: pkg?.deadline ?? "",
+    contractValue: pkg?.contractValue == null ? "" : String(pkg.contractValue),
     note: pkg?.note ?? "",
   });
   const [errors, setErrors] = useState({});
@@ -30,7 +31,11 @@ export default function PackageForm({ pkg, projects, owners, defaultProjectId, o
     setBusy(true);
     setFormError(null);
     try {
-      const payload = { ...values, deadline: values.deadline || null };
+      const payload = {
+        ...values,
+        deadline: values.deadline || null,
+        contractValue: values.contractValue === "" ? null : Number(values.contractValue),
+      };
       const saved = isEdit
         ? await api(`/packages/${pkg.id}`, { method: "PATCH", body: payload })
         : await api("/packages", { method: "POST", body: payload });
@@ -84,6 +89,16 @@ export default function PackageForm({ pkg, projects, owners, defaultProjectId, o
 
         <Field label="Hạn giao hàng" error={errors.deadline} hint="Dùng để cảnh báo trễ tiến độ">
           <input type="date" value={values.deadline ?? ""} onChange={set("deadline")} />
+        </Field>
+
+        <Field label="Giá trị gói thầu" error={errors.contractValue} hint="Giá trúng thầu, đơn vị VND">
+          <MoneyInput
+            value={values.contractValue}
+            onChange={(v) => {
+              setValues((prev) => ({ ...prev, contractValue: v }));
+              setErrors((prev) => (prev.contractValue ? { ...prev, contractValue: undefined } : prev));
+            }}
+          />
         </Field>
 
         <Field label="Địa điểm giao hàng" error={errors.location}>

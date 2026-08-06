@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { qs, useDebounced, useResource } from "@/lib/client";
-import { EmptyState, Pagination, ProgressBar, TableSkeleton } from "./ui";
+import { EmptyState, Pagination, ProgressBar, TableSkeleton, formatMoney } from "./ui";
 
 export default function PackagesView({
   projects, owners, pageSize, refreshKey, initialProjectId,
@@ -72,17 +72,18 @@ export default function PackagesView({
               <th>Đơn vị</th>
               <th>Hạn giao</th>
               <th className="num">Dòng hàng</th>
+              <th className="num">Giá trị</th>
               <th className="progress-col">Tiến độ</th>
               <th aria-label="Thao tác" />
             </tr>
           </thead>
           {loading ? (
-            <TableSkeleton columns={7} />
+            <TableSkeleton columns={8} />
           ) : (
             <tbody>
               {packages.length === 0 ? (
                 <tr>
-                  <td colSpan={7}>
+                  <td colSpan={8}>
                     <EmptyState
                       title={hasFilters ? "Không có gói thầu phù hợp" : "Chưa có gói thầu nào"}
                       description={hasFilters ? "Thử nới lỏng bộ lọc." : "Tạo gói thầu để bắt đầu khai báo hàng hóa."}
@@ -123,6 +124,15 @@ export default function PackagesView({
                     <td className="num">
                       {pkg.itemCount}
                       <span className="cell-sub">{pkg.done} xong</span>
+                    </td>
+                    <td className="num">
+                      {pkg.contractValue != null
+                        ? <span title={`${formatMoney(pkg.contractValue)} ₫`}>{formatMoney(pkg.contractValue, { short: true })}</span>
+                        : formatMoney(pkg.planValue, { short: true })}
+                      <span className="cell-sub">
+                        {pkg.contractValue == null && pkg.planValue > 0 ? "theo đơn giá · " : ""}
+                        đã nhận {formatMoney(pkg.receivedValue, { short: true })}
+                      </span>
                     </td>
                     <td className="progress-col"><ProgressBar value={pkg.completion} /></td>
                     <td className="row-actions">

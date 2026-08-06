@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { qs, useDebounced, useResource } from "@/lib/client";
-import { EmptyState, Pagination, ProgressBar, StatusBadge, TableSkeleton } from "./ui";
+import { EmptyState, Pagination, ProgressBar, StatusBadge, TableSkeleton, formatMoney } from "./ui";
 
 const STATUSES = ["Hoàn thành", "Đang nhập", "Chưa nhập", "Chưa cập nhật"];
 
@@ -87,18 +87,19 @@ export default function InventoryView({
               <th className="num">KH</th>
               <th className="num">Đã nhập</th>
               <th className="num">Còn lại</th>
+              <th className="num">Thành tiền</th>
               <th className="progress-col">Tiến độ</th>
               <th>Trạng thái</th>
               <th aria-label="Thao tác" />
             </tr>
           </thead>
           {loading ? (
-            <TableSkeleton columns={8} rows={6} />
+            <TableSkeleton columns={9} rows={6} />
           ) : (
             <tbody>
               {items.length === 0 ? (
                 <tr>
-                  <td colSpan={8}>
+                  <td colSpan={9}>
                     <EmptyState
                       title={hasFilters ? "Không có kết quả phù hợp" : "Chưa có hàng hóa nào"}
                       description={hasFilters ? "Thử nới lỏng bộ lọc." : "Thêm dòng hàng đầu tiên để bắt đầu theo dõi."}
@@ -129,6 +130,14 @@ export default function InventoryView({
                       {item.receiptCount > 0 && <span className="cell-sub">{item.receiptCount} đợt</span>}
                     </td>
                     <td className="num">{item.remainingQty}</td>
+                    <td className="num">
+                      {item.unitPrice > 0
+                        ? <span title={`${formatMoney(item.amount)} ₫`}>{formatMoney(item.amount, { short: true })}</span>
+                        : "—"}
+                      {item.unitPrice > 0 && (
+                        <span className="cell-sub">@{formatMoney(item.unitPrice, { short: true })}</span>
+                      )}
+                    </td>
                     <td className="progress-col"><ProgressBar value={item.completion} /></td>
                     <td><StatusBadge status={item.status} /></td>
                     <td className="row-actions">

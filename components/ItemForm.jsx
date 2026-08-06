@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { api, RequestError } from "@/lib/client";
-import { Field, Modal } from "./ui";
+import { Field, Modal, MoneyInput, formatMoney } from "./ui";
 
 export default function ItemForm({ item, packages, units, defaultPackageId, onClose, onSaved }) {
   const isEdit = Boolean(item);
@@ -12,6 +12,7 @@ export default function ItemForm({ item, packages, units, defaultPackageId, onCl
     name: item?.name ?? "",
     unit: item?.unit ?? "",
     planQty: item ? String(item.planQty) : "",
+    unitPrice: item ? String(item.unitPrice ?? 0) : "",
     model: item?.model ?? "",
     maker: item?.maker ?? "",
     note: item?.note ?? "",
@@ -31,7 +32,11 @@ export default function ItemForm({ item, packages, units, defaultPackageId, onCl
     setBusy(true);
     setFormError(null);
     try {
-      const payload = { ...values, planQty: values.planQty === "" ? 0 : Number(values.planQty) };
+      const payload = {
+        ...values,
+        planQty: values.planQty === "" ? 0 : Number(values.planQty),
+        unitPrice: values.unitPrice === "" ? 0 : Number(values.unitPrice),
+      };
       const saved = isEdit
         ? await api(`/items/${item.id}`, { method: "PATCH", body: payload })
         : await api("/items", { method: "POST", body: payload });
@@ -93,6 +98,22 @@ export default function ItemForm({ item, packages, units, defaultPackageId, onCl
           hint={isEdit ? `Đã nhập ${item.receivedQty} — không thể hạ thấp hơn` : undefined}
         >
           <input type="number" min="0" value={values.planQty} onChange={set("planQty")} required />
+        </Field>
+
+        <Field label="Đơn giá" error={errors.unitPrice} hint="VND, để trống nếu chưa có giá">
+          <MoneyInput
+            value={values.unitPrice}
+            onChange={(v) => {
+              setValues((prev) => ({ ...prev, unitPrice: v }));
+              setErrors((prev) => (prev.unitPrice ? { ...prev, unitPrice: undefined } : prev));
+            }}
+          />
+        </Field>
+
+        <Field label="Thành tiền">
+          <output className="amount-output">
+            {formatMoney((Number(values.planQty) || 0) * (Number(values.unitPrice) || 0))} ₫
+          </output>
         </Field>
 
         <Field label="Hãng sản xuất" error={errors.maker}>

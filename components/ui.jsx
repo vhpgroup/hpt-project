@@ -2,6 +2,37 @@
 
 import { useEffect, useRef } from "react";
 
+/** Tiền hiển thị rút gọn cho ô bảng hẹp: 1.500.000 → "1,5 tr", 2.500.000.000 → "2,5 tỷ". */
+export function formatMoney(value, { short = false } = {}) {
+  if (value === null || value === undefined || value === "") return "—";
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "—";
+  if (!short) return n.toLocaleString("vi-VN");
+  if (n >= 1e9) return `${(n / 1e9).toLocaleString("vi-VN", { maximumFractionDigits: 1 })} tỷ`;
+  if (n >= 1e6) return `${(n / 1e6).toLocaleString("vi-VN", { maximumFractionDigits: 1 })} tr`;
+  if (n >= 1e3) return `${(n / 1e3).toLocaleString("vi-VN", { maximumFractionDigits: 0 })} ng`;
+  return n.toLocaleString("vi-VN");
+}
+
+/** Ô nhập tiền: gõ số trần, hiển thị có dấu phân cách. */
+export function MoneyInput({ value, onChange, placeholder, ...rest }) {
+  const display = value === "" || value === null || value === undefined
+    ? ""
+    : Number(String(value).replace(/\D/g, "") || 0).toLocaleString("vi-VN");
+  return (
+    <span className="money-input">
+      <input
+        inputMode="numeric"
+        value={display}
+        onChange={(event) => onChange(event.target.value.replace(/\D/g, ""))}
+        placeholder={placeholder ?? "0"}
+        {...rest}
+      />
+      <span className="money-suffix">₫</span>
+    </span>
+  );
+}
+
 const STATUS_TONE = {
   "Hoàn thành": "ok",
   "Đang nhập": "warn",
