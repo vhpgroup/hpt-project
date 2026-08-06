@@ -8,3 +8,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .next-dev.*.log
+
+# SQLite database (dữ liệu chạy thật, không commit)
+/data
+*.db
+*.db-shm
+*.db-wal
