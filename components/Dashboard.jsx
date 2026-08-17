@@ -75,7 +75,7 @@ export default function Dashboard() {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="brand">
-          <span className="brand-mark" aria-hidden="true">N</span>
+          <span className="brand-mark" aria-hidden="true">E</span>
           <div>
             <strong>{settings.data?.systemName ?? "Điều phối nhập hàng"}</strong>
             <small>Dự án · Gói thầu · Hàng hóa</small>

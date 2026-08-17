@@ -14,9 +14,11 @@ export default function PackagesView({
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebounced(search);
 
-  // Khi mở từ màn Tổng quan, lọc sẵn theo dự án đã chọn.
   useEffect(() => {
-    if (initialProjectId) { setProjectId(initialProjectId); setPage(1); }
+    if (initialProjectId) {
+      setProjectId(initialProjectId);
+      setPage(1);
+    }
   }, [initialProjectId]);
 
   const filters = { q: debouncedSearch, projectId, owner };
@@ -24,8 +26,17 @@ export default function PackagesView({
   const { data, loading } = useResource(`/packages${qs({ ...filters, page, pageSize, _: refreshKey })}`);
   const packages = data?.data ?? [];
 
-  const update = (setter) => (event) => { setter(event.target.value); setPage(1); };
-  const clearFilters = () => { setSearch(""); setProjectId(""); setOwner(""); setPage(1); };
+  const update = (setter) => (event) => {
+    setter(event.target.value);
+    setPage(1);
+  };
+
+  const clearFilters = () => {
+    setSearch("");
+    setProjectId("");
+    setOwner("");
+    setPage(1);
+  };
 
   return (
     <article className="panel">
@@ -96,52 +107,62 @@ export default function PackagesView({
                   </td>
                 </tr>
               ) : (
-                packages.map((pkg) => (
-                  <tr key={pkg.id}>
-                    <td>
-                      <strong>{pkg.name || "(chưa đặt tên)"}</strong>
-                      <span className="cell-sub mono">{pkg.code || "Chưa có mã TBMT"}</span>
-                    </td>
-                    <td>
-                      {pkg.projectName}
-                      <span className="cell-sub">{pkg.location || "—"}</span>
-                    </td>
-                    <td>{pkg.owner || "—"}</td>
-                    <td>
-                      {pkg.deadline ? (
-                        <>
-                          <span className="mono">{pkg.deadline}</span>
-                          <span className={`cell-sub ${pkg.overdue ? "text-danger" : ""}`}>
-                            {pkg.overdue
-                              ? `Trễ ${Math.abs(pkg.daysToDeadline)} ngày`
-                              : pkg.daysToDeadline >= 0
-                                ? `Còn ${pkg.daysToDeadline} ngày`
-                                : "Đã xong"}
-                          </span>
-                        </>
-                      ) : "—"}
-                    </td>
-                    <td className="num">
-                      {pkg.itemCount}
-                      <span className="cell-sub">{pkg.done} xong</span>
-                    </td>
-                    <td className="num">
-                      {pkg.contractValue != null
-                        ? <span title={`${formatMoney(pkg.contractValue)} ₫`}>{formatMoney(pkg.contractValue, { short: true })}</span>
-                        : formatMoney(pkg.planValue, { short: true })}
-                      <span className="cell-sub">
-                        {pkg.contractValue == null && pkg.planValue > 0 ? "theo đơn giá · " : ""}
-                        đã nhận {formatMoney(pkg.receivedValue, { short: true })}
-                      </span>
-                    </td>
-                    <td className="progress-col"><ProgressBar value={pkg.completion} /></td>
-                    <td className="row-actions">
-                      <button className="icon-button" onClick={() => onOpenItems(pkg)} aria-label={`Xem hàng hóa của ${pkg.name}`} title="Xem hàng hóa">▤</button>
-                      <button className="icon-button" onClick={() => onEditPackage(pkg)} aria-label={`Sửa ${pkg.name}`}>✎</button>
-                      <button className="icon-button danger" onClick={() => onDeletePackage(pkg)} aria-label={`Xóa ${pkg.name}`}>🗑</button>
-                    </td>
-                  </tr>
-                ))
+                packages.map((pkg) => {
+                  const displayValue = pkg.contractValue ?? pkg.planValue ?? 0;
+                  const receivedValue = pkg.receivedValue ?? 0;
+                  const packageLabel = pkg.name || pkg.code || "Chưa có mã TBMT";
+
+                  return (
+                    <tr key={pkg.id}>
+                      <td>
+                        {pkg.name ? (
+                          <>
+                            <strong>{pkg.name}</strong>
+                            <span className="cell-sub mono">{pkg.code || "Chưa có mã TBMT"}</span>
+                          </>
+                        ) : (
+                          <strong className="mono">{pkg.code || "Chưa có mã TBMT"}</strong>
+                        )}
+                      </td>
+                      <td>
+                        {pkg.projectName}
+                        <span className="cell-sub">{pkg.location || "—"}</span>
+                      </td>
+                      <td>{pkg.owner || "—"}</td>
+                      <td>
+                        {pkg.deadline ? (
+                          <>
+                            <span className="mono">{pkg.deadline}</span>
+                            <span className={`cell-sub ${pkg.overdue ? "text-danger" : ""}`}>
+                              {pkg.overdue
+                                ? `Trễ ${Math.abs(pkg.daysToDeadline)} ngày`
+                                : pkg.daysToDeadline >= 0
+                                  ? `Còn ${pkg.daysToDeadline} ngày`
+                                  : "Đã xong"}
+                            </span>
+                          </>
+                        ) : "—"}
+                      </td>
+                      <td className="num">
+                        {pkg.itemCount}
+                        <span className="cell-sub">{pkg.done} xong</span>
+                      </td>
+                      <td className="num">
+                        <span title={`${formatMoney(displayValue)} ₫`}>{formatMoney(displayValue)} ₫</span>
+                        <span className="cell-sub mono">
+                          {pkg.contractValue == null && pkg.planValue > 0 ? "theo đơn giá · " : ""}
+                          đã nhận {formatMoney(receivedValue)} ₫
+                        </span>
+                      </td>
+                      <td className="progress-col"><ProgressBar value={pkg.completion} /></td>
+                      <td className="row-actions">
+                        <button className="icon-button" onClick={() => onOpenItems(pkg)} aria-label={`Xem hàng hóa của ${packageLabel}`} title="Xem hàng hóa">▤</button>
+                        <button className="icon-button" onClick={() => onEditPackage(pkg)} aria-label={`Sửa ${packageLabel}`}>✎</button>
+                        <button className="icon-button danger" onClick={() => onDeletePackage(pkg)} aria-label={`Xóa ${packageLabel}`}>🗑</button>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           )}

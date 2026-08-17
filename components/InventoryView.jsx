@@ -17,9 +17,11 @@ export default function InventoryView({
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebounced(search);
 
-  // Khi mở từ màn Gói thầu, lọc sẵn theo gói đó.
   useEffect(() => {
-    if (initialPackageId) { setPackageId(initialPackageId); setPage(1); }
+    if (initialPackageId) {
+      setPackageId(initialPackageId);
+      setPage(1);
+    }
   }, [initialPackageId]);
 
   const filters = { q: debouncedSearch, packageId, owner, status };
@@ -27,9 +29,17 @@ export default function InventoryView({
   const { data, loading } = useResource(`/items${qs({ ...filters, page, pageSize, _: refreshKey })}`);
   const items = data?.data ?? [];
 
-  const update = (setter) => (event) => { setter(event.target.value); setPage(1); };
+  const update = (setter) => (event) => {
+    setter(event.target.value);
+    setPage(1);
+  };
+
   const clearFilters = () => {
-    setSearch(""); setPackageId(""); setOwner(""); setStatus(""); setPage(1);
+    setSearch("");
+    setPackageId("");
+    setOwner("");
+    setStatus("");
+    setPage(1);
   };
 
   return (
@@ -63,7 +73,7 @@ export default function InventoryView({
           <option value="">Tất cả gói thầu</option>
           {packages.map((p) => (
             <option key={p.id} value={p.id}>
-              {[p.code, p.name].filter(Boolean).join(" · ")}
+              {p.name || p.projectName || p.code}
             </option>
           ))}
         </select>
@@ -121,8 +131,8 @@ export default function InventoryView({
                       </span>
                     </td>
                     <td>
-                      {item.packageName || "(chưa đặt tên)"}
-                      <span className="cell-sub mono">{item.packageCode || item.projectName}</span>
+                      <strong>{item.packageName || item.projectName || item.packageCode || "—"}</strong>
+                      <span className="cell-sub mono">{item.packageCode || item.projectName || "—"}</span>
                     </td>
                     <td className="num">{item.planQty} <small>{item.unit}</small></td>
                     <td className="num">
