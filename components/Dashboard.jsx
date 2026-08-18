@@ -44,7 +44,6 @@ export default function Dashboard() {
   const owners = stats.data?.owners ?? [];
   const projects = projectOptions.data?.data ?? [];
   const packages = packageOptions.data?.data ?? [];
-  const active = VIEWS.find((v) => v.id === view);
 
   const refreshAll = useCallback(() => {
     stats.reload();
@@ -114,14 +113,6 @@ export default function Dashboard() {
       </aside>
 
       <main className="content">
-        <header className="page-head">
-          <div>
-            <span className="eyebrow">Trung tâm điều hành</span>
-            <h1>{active.title}</h1>
-            <p>{active.description}</p>
-          </div>
-        </header>
-
         {loadFailed && (
           <div className="form-alert">
             Không tải được dữ liệu từ máy chủ. Kiểm tra kết nối rồi tải lại trang.

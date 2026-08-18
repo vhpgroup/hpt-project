@@ -5,6 +5,13 @@ import { FolderOpen, Pencil, Trash2 } from "lucide-react";
 import { qs, useDebounced, useResource } from "@/lib/client";
 import { EmptyState, Pagination, ProgressBar, TableSkeleton, formatMoney } from "./ui";
 
+function formatDate(value) {
+  if (!value) return "—";
+  const [year, month, day] = value.split("-");
+  if (!year || !month || !day) return value;
+  return `${day}/${month}/${year}`;
+}
+
 export default function OverviewView({
   stats, statsLoading, refreshKey, onAddProject, onEditProject, onDeleteProject, onOpenPackages,
 }) {
@@ -79,6 +86,8 @@ export default function OverviewView({
               <tr>
                 <th>Dự án</th>
                 <th>Đơn vị</th>
+                <th>Ngày nộp thầu</th>
+                <th>Loại thầu</th>
                 <th className="num">Gói thầu</th>
                 <th className="num">Dòng hàng</th>
                 <th className="num">Giá trị</th>
@@ -87,12 +96,12 @@ export default function OverviewView({
               </tr>
             </thead>
             {loading ? (
-              <TableSkeleton columns={7} />
+              <TableSkeleton columns={9} />
             ) : (
               <tbody>
                 {projects.length === 0 ? (
                   <tr>
-                    <td colSpan={7}>
+                    <td colSpan={9}>
                       <EmptyState title="Chưa có dự án nào" description="Thêm dự án rồi tạo gói thầu bên trong." />
                     </td>
                   </tr>
@@ -104,6 +113,8 @@ export default function OverviewView({
                         <span className="cell-sub">{project.location || "—"}</span>
                       </td>
                       <td>{project.owners.length ? project.owners.join(", ") : "—"}</td>
+                      <td className="mono">{formatDate(project.bidDate)}</td>
+                      <td>{project.bidType || "—"}</td>
                       <td className="num">{project.packageCount}</td>
                       <td className="num">{project.itemCount}</td>
                       <td className="num">

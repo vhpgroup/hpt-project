@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { api, RequestError } from "@/lib/client";
+import { BID_TYPES } from "@/lib/domain";
 import { Field, Modal } from "./ui";
 
 export default function ProjectForm({ project, onClose, onSaved }) {
@@ -9,6 +10,8 @@ export default function ProjectForm({ project, onClose, onSaved }) {
   const [values, setValues] = useState({
     name: project?.name ?? "",
     location: project?.location ?? "",
+    bidDate: project?.bidDate ?? "",
+    bidType: project?.bidType ?? "Thầu trực tuyến",
     note: project?.note ?? "",
   });
   const [errors, setErrors] = useState({});
@@ -58,6 +61,14 @@ export default function ProjectForm({ project, onClose, onSaved }) {
         </Field>
         <Field label="Địa điểm" error={errors.location} wide>
           <input value={values.location} onChange={set("location")} placeholder="Hà Nội" />
+        </Field>
+        <Field label="Ngày nộp thầu" error={errors.bidDate}>
+          <input type="date" value={values.bidDate ?? ""} onChange={set("bidDate")} />
+        </Field>
+        <Field label="Loại thầu" error={errors.bidType}>
+          <select value={values.bidType} onChange={set("bidType")}>
+            {BID_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
+          </select>
         </Field>
         <Field label="Ghi chú" error={errors.note} wide>
           <textarea rows={2} value={values.note} onChange={set("note")} placeholder="Thông tin thêm về dự án…" />
