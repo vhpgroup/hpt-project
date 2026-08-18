@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FolderOpen, Pencil, Trash2 } from "lucide-react";
 import { qs, useDebounced, useResource } from "@/lib/client";
 import { EmptyState, Pagination, ProgressBar, TableSkeleton, formatMoney } from "./ui";
 
@@ -111,9 +112,9 @@ export default function OverviewView({
                       </td>
                       <td className="progress-col"><ProgressBar value={project.completion} /></td>
                       <td className="row-actions">
-                        <button className="icon-button" onClick={() => onOpenPackages(project)} aria-label={`Xem gói thầu của ${project.name}`} title="Xem gói thầu">▤</button>
-                        <button className="icon-button" onClick={() => onEditProject(project)} aria-label={`Sửa ${project.name}`}>✎</button>
-                        <button className="icon-button danger" onClick={() => onDeleteProject(project)} aria-label={`Xóa ${project.name}`}>🗑</button>
+                        <button className="icon-button accent" onClick={() => onOpenPackages(project)} aria-label={`Xem gói thầu của ${project.name}`} title="Xem gói thầu"><FolderOpen aria-hidden="true" /></button>
+                        <button className="icon-button" onClick={() => onEditProject(project)} aria-label={`Sửa ${project.name}`} title="Sửa dự án"><Pencil aria-hidden="true" /></button>
+                        <button className="icon-button danger" onClick={() => onDeleteProject(project)} aria-label={`Xóa ${project.name}`} title="Xóa dự án"><Trash2 aria-hidden="true" /></button>
                       </td>
                     </tr>
                   ))

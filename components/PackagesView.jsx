@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ListTree, Pencil, Trash2 } from "lucide-react";
 import { qs, useDebounced, useResource } from "@/lib/client";
 import { EmptyState, Pagination, ProgressBar, TableSkeleton, formatMoney } from "./ui";
 
@@ -156,9 +157,9 @@ export default function PackagesView({
                       </td>
                       <td className="progress-col"><ProgressBar value={pkg.completion} /></td>
                       <td className="row-actions">
-                        <button className="icon-button" onClick={() => onOpenItems(pkg)} aria-label={`Xem hàng hóa của ${packageLabel}`} title="Xem hàng hóa">▤</button>
-                        <button className="icon-button" onClick={() => onEditPackage(pkg)} aria-label={`Sửa ${packageLabel}`}>✎</button>
-                        <button className="icon-button danger" onClick={() => onDeletePackage(pkg)} aria-label={`Xóa ${packageLabel}`}>🗑</button>
+                        <button className="icon-button accent" onClick={() => onOpenItems(pkg)} aria-label={`Xem hàng hóa của ${packageLabel}`} title="Xem hàng hóa"><ListTree aria-hidden="true" /></button>
+                        <button className="icon-button" onClick={() => onEditPackage(pkg)} aria-label={`Sửa ${packageLabel}`} title="Sửa gói thầu"><Pencil aria-hidden="true" /></button>
+                        <button className="icon-button danger" onClick={() => onDeletePackage(pkg)} aria-label={`Xóa ${packageLabel}`} title="Xóa gói thầu"><Trash2 aria-hidden="true" /></button>
                       </td>
                     </tr>
                   );

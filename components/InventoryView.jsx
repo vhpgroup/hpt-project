@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ClipboardList, Pencil, Trash2 } from "lucide-react";
 import { qs, useDebounced, useResource } from "@/lib/client";
 import { EmptyState, Pagination, ProgressBar, StatusBadge, TableSkeleton, formatMoney } from "./ui";
 
@@ -157,10 +158,10 @@ export default function InventoryView({
                         aria-label={`Ghi nhận đợt nhập cho ${item.name}`}
                         title="Đợt nhập hàng"
                       >
-                        ⇧
+                        <ClipboardList aria-hidden="true" />
                       </button>
-                      <button className="icon-button" onClick={() => onEditItem(item)} aria-label={`Sửa ${item.name}`}>✎</button>
-                      <button className="icon-button danger" onClick={() => onDeleteItem(item)} aria-label={`Xóa ${item.name}`}>🗑</button>
+                      <button className="icon-button" onClick={() => onEditItem(item)} aria-label={`Sửa ${item.name}`} title="Sửa hàng hóa"><Pencil aria-hidden="true" /></button>
+                      <button className="icon-button danger" onClick={() => onDeleteItem(item)} aria-label={`Xóa ${item.name}`} title="Xóa hàng hóa"><Trash2 aria-hidden="true" /></button>
                     </td>
                   </tr>
                 ))
